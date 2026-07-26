@@ -283,3 +283,13 @@ body {
         border-collapse: collapse !important;
     }
 }
+
+/* Modal Z-Index & Overlay fixes */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal {
+    z-index: 1060 !important;
+}
+
