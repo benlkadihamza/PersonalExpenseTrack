@@ -21,10 +21,18 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'dev-expense-tracker-secret-key-french-2026'
     
-    db_path = os.path.join(app.instance_path, 'expense_tracker.db')
-    os.makedirs(app.instance_path, exist_ok=True)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # Database configuration (SQLite locally / PostgreSQL on Render)
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    else:
+        db_path = os.path.join(app.instance_path, "expense_tracker.db")
+        os.makedirs(app.instance_path, exist_ok=True)
+        database_url = f"sqlite:///{db_path}"
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
     CSRFProtect(app)
