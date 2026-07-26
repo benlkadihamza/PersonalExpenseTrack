@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | {{ app_name }}{% endblock %}
+{% block header_title %}Tableau de Bord Financier{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards Row -->
+<div class="row g-3 mb-4">
+    <!-- Total Revenus -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted fw-semibold small text-uppercase">Total Revenus</span>
+                    <h3 class="fw-bold text-success mb-0 mt-1">+{{ "%.2f"|format(tot_rev) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
+                </div>
+                <div class="stat-icon bg-revenue-icon">
+                    <i class="bi bi-arrow-down-left-circle-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Dépenses -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted fw-semibold small text-uppercase">Total Dépenses</span>
+                    <h3 class="fw-bold text-danger mb-0 mt-1">-{{ "%.2f"|format(tot_dep) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
+                </div>
+                <div class="stat-icon bg-expense-icon">
+                    <i class="bi bi-arrow-up-right-circle-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solde Actuel -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted fw-semibold small text-uppercase">Solde Actuel</span>
+                    <h3 class="fw-bold {{ 'text-success' if solde >= 0 else 'text-danger' }} mb-0 mt-1">
+                        {{ "+" if solde > 0 else "" }}{{ "%.2f"|format(solde) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span>
+                    </h3>
+                </div>
+                <div class="stat-icon bg-balance-icon">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nombre de Transactions -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card stat-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted fw-semibold small text-uppercase">Transactions</span>
+                    <h3 class="fw-bold text-body mb-0 mt-1">{{ count_tx }}</h3>
+                </div>
+                <div class="stat-icon bg-count-icon">
+                    <i class="bi bi-list-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+    <!-- Monthly Expenses vs Revenues Chart (Grouped Bar) -->
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Évolution Mensuelle (Revenus vs Dépenses)</h6>
+                <span class="badge bg-body-tertiary text-muted border">Derniers mois</span>
+            </div>
+            <div style="position: relative; min-height: 280px;">
+                <canvas id="monthlyComparisonChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expenses vs Revenues Pie/Donut Chart -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill text-info me-2"></i>Répartition Globale</h6>
+                <span class="badge bg-body-tertiary text-muted border">Global</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center" style="position: relative; min-height: 280px;">
+                <canvas id="expensesDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Last 10 Transactions Section -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 p-3 d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Dernières 10 Transactions</h6>
+            <small class="text-muted">Aperçu rapide des plus récents mouvements d'argent</small>
+        </div>
+        <a href="{{ url_for('transactions_list') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            Voir tout <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table custom-table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th class="text-end">Revenu ({{ currency }})</th>
+                    <th class="text-end">Dépense ({{ currency }})</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recent_txs %}
+                    {% for tx in recent_txs %}
+                    <tr>
+                        <td><span class="fw-medium">{{ tx.date.strftime('%d/%m/%Y') }}</span></td>
+                        <td>{{ tx.description or '-' }}</td>
+                        <td class="text-end">
+                            {% if tx.revenu > 0 %}
+                                <span class="badge badge-revenue">+{{ "%.2f"|format(tx.revenu) }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if tx.depense > 0 %}
+                                <span class="badge badge-expense">-{{ "%.2f"|format(tx.depense) }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('transaction_edit', id=tx.id) }}" class="btn btn-light text-primary" title="Modifier">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <button type="button" class="btn btn-light text-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-delete-url="{{ url_for('transaction_delete', id=tx.id) }}" data-tx-desc="{{ tx.description or 'Transaction sans description' }}" data-tx-amount="{{ tx.revenu if tx.revenu > 0 else tx.depense }} {{ currency }}" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Aucune transaction enregistrée. <a href="{{ url_for('transaction_add') }}">Ajoutez la première transaction</a>.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Deletion Confirmation -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="mb-2">Êtes-vous sûr de vouloir supprimer définitivement cette transaction ?</p>
+                <div class="card bg-body-tertiary border p-3 rounded-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Description:</span>
+                        <strong id="deleteTxDesc">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Montant:</span>
+                        <strong id="deleteTxAmount" class="text-danger">-</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const labels = {{ chart_labels|tojson }};
+    const expenses = {{ chart_expenses|tojson }};
+    const revenues = {{ chart_revenues|tojson }};
+
+    // 1. Grouped Bar Chart (Revenues vs Expenses)
+    const ctxBar = document.getElementById('monthlyComparisonChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: labels.length > 0 ? labels : ['Aucune donnée'],
+            datasets: [
+                {
+                    label: 'Revenus ({{ currency }})',
+                    data: revenues.length > 0 ? revenues : [0],
+                    backgroundColor: 'rgba(25, 135, 84, 0.85)',
+                    borderColor: '#198754',
+                    borderWidth: 1,
+                    borderRadius: 6
+                },
+                {
+                    label: 'Dépenses ({{ currency }})',
+                    data: expenses.length > 0 ? expenses : [0],
+                    backgroundColor: 'rgba(220, 53, 69, 0.85)',
+                    borderColor: '#dc3545',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 2. Donut Chart (Distribution Globale)
+    const ctxPie = document.getElementById('expensesDistributionChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ['Total Revenus', 'Total Dépenses'],
+            datasets: [{
+                data: [{{ tot_rev }}, {{ tot_dep }}],
+                backgroundColor: ['rgba(25, 135, 84, 0.85)', 'rgba(220, 53, 69, 0.85)'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '70%'
+        }
+    });
+});
+</script>
+{% endblock %}

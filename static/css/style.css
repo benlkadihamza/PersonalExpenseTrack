@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Personal Expense Tracker - Modern Custom CSS & Mobile Responsiveness
+   ========================================================================== */
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    --success-gradient: linear-gradient(135deg, #198754 0%, #146c43 100%);
+    --danger-gradient: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+    --purple-gradient: linear-gradient(135deg, #6f42c1 0%, #59359a 100%);
+    
+    --card-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.05);
+    --card-hover-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.1);
+    --transition-fast: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ==========================================================================
+   Sidebar & Navigation Layout
+   ========================================================================== */
+#wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebar {
+    min-width: 260px;
+    max-width: 260px;
+    background-color: var(--bs-tertiary-bg);
+    border-right: 1px solid var(--bs-border-color);
+    transition: var(--transition-fast);
+    z-index: 1000;
+}
+
+#sidebar .sidebar-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#sidebar ul.components {
+    padding: 1rem 0.75rem;
+}
+
+#sidebar ul li a, .offcanvas-body ul li a {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    color: var(--bs-body-color);
+    border-radius: 0.5rem;
+    margin-bottom: 0.25rem;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+#sidebar ul li a i, .offcanvas-body ul li a i {
+    font-size: 1.2rem;
+    margin-right: 0.75rem;
+    color: var(--bs-secondary-color);
+    transition: var(--transition-fast);
+}
+
+#sidebar ul li a:hover, .offcanvas-body ul li a:hover {
+    background-color: rgba(13, 110, 253, 0.08);
+    color: var(--bs-primary);
+}
+
+#sidebar ul li.active > a, .offcanvas-body ul li.active > a {
+    background: var(--primary-gradient);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+#sidebar ul li.active > a i, .offcanvas-body ul li.active > a i {
+    color: #ffffff;
+}
+
+#content {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar */
+.main-navbar {
+    padding: 0.85rem 1.5rem;
+    background-color: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* ==========================================================================
+   Mobile Bottom Navigation Bar
+   ========================================================================== */
+.mobile-bottom-nav {
+    z-index: 1050;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.mobile-bottom-nav .nav-item {
+    transition: var(--transition-fast);
+}
+
+.mobile-bottom-nav .nav-item.active i {
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Cards & Aesthetics
+   ========================================================================== */
+.stat-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-fast);
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.bg-revenue-icon {
+    background-color: rgba(25, 135, 84, 0.12);
+    color: #198754;
+}
+
+.bg-expense-icon {
+    background-color: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+}
+
+.bg-balance-icon {
+    background-color: rgba(13, 110, 253, 0.12);
+    color: #0d6efd;
+}
+
+.bg-count-icon {
+    background-color: rgba(111, 66, 193, 0.12);
+    color: #6f42c1;
+}
+
+/* Tables */
+.custom-table {
+    vertical-align: middle;
+}
+
+.custom-table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-tertiary-bg);
+    border-bottom: 2px solid var(--bs-border-color);
+    padding: 0.85rem 1rem;
+    white-space: nowrap;
+}
+
+.custom-table td {
+    padding: 0.85rem 1rem;
+    font-size: 0.925rem;
+    white-space: nowrap;
+}
+
+.badge-revenue {
+    background-color: rgba(25, 135, 84, 0.12);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
+    font-weight: 600;
+    padding: 0.4em 0.75em;
+}
+
+.badge-expense {
+    background-color: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    font-weight: 600;
+    padding: 0.4em 0.75em;
+}
+
+/* Form Controls & Minimum Touch Target */
+.form-control, .form-select, .btn {
+    min-height: 44px; /* Mobile accessibility standard */
+}
+
+.form-control, .form-select {
+    border-radius: 0.6rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--bs-border-color);
+    transition: var(--transition-fast);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Toast Container */
+.toast-container {
+    z-index: 1100;
+}
+
+/* Animation Utilities */
+.fade-in {
+    animation: fadeIn 0.35s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Screen Specific Tweaks (< 768px) */
+@media (max-width: 767.98px) {
+    .main-navbar {
+        padding: 0.65rem 1rem;
+    }
+    
+    main.container-fluid {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+        padding-bottom: 5rem !important; /* Space for bottom navbar */
+    }
+
+    .stat-card h3 {
+        font-size: 1.35rem;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Print Stylesheet */
+@media print {
+    #sidebar, .main-navbar, .mobile-bottom-nav, .btn-print-hide, .toast-container, footer {
+        display: none !important;
+    }
+    #content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+}

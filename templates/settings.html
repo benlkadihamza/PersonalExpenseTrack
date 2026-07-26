@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Paramètres | {{ app_name }}{% endblock %}
+{% block header_title %}Paramètres de l'application{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Branding & Preferences Card -->
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                <h5 class="fw-bold mb-1"><i class="bi bi-sliders text-primary me-2"></i>Préférences Générales</h5>
+                <p class="text-muted small mb-0">Personnalisez le nom de votre application et votre devise d'affichage.</p>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('settings') }}" novalidate>
+                    {{ settings_form.hidden_tag() }}
+
+                    <!-- Application Name -->
+                    <div class="mb-3">
+                        <label for="app_name" class="form-label fw-semibold">Nom de l'application</label>
+                        {{ settings_form.app_name(class="form-control" + (" is-invalid" if settings_form.app_name.errors else "")) }}
+                        {% for error in settings_form.app_name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Currency -->
+                    <div class="mb-3">
+                        <label for="currency" class="form-label fw-semibold">Devise / Symbole monétaire</label>
+                        {{ settings_form.currency(class="form-control" + (" is-invalid" if settings_form.currency.errors else ""), placeholder="Ex: DH, €, $") }}
+                        {% for error in settings_form.currency.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Ce symbole sera affiché sur tous les montants et exports.</div>
+                    </div>
+
+                    <!-- Dark Mode Default -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ settings_form.dark_mode(class="form-check-input") }}
+                            <label class="form-check-label fw-semibold" for="dark_mode">Activer le Mode Sombre par défaut</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-save me-1"></i> Enregistrer les modifications
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Card -->
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                <h5 class="fw-bold mb-1"><i class="bi bi-shield-lock text-success me-2"></i>Changer le mot de passe</h5>
+                <p class="text-muted small mb-0">Mettez à jour le mot de passe d'accès à votre compte.</p>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('settings') }}" novalidate>
+                    {{ password_form.hidden_tag() }}
+
+                    <!-- Old Password -->
+                    <div class="mb-3">
+                        <label for="old_password" class="form-label fw-semibold">Ancien mot de passe</label>
+                        {{ password_form.old_password(class="form-control" + (" is-invalid" if password_form.old_password.errors else "")) }}
+                        {% for error in password_form.old_password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label fw-semibold">Nouveau mot de passe</label>
+                        {{ password_form.new_password(class="form-control" + (" is-invalid" if password_form.new_password.errors else "")) }}
+                        {% for error in password_form.new_password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label fw-semibold">Confirmer le nouveau mot de passe</label>
+                        {{ password_form.confirm_password(class="form-control" + (" is-invalid" if password_form.confirm_password.errors else "")) }}
+                        {% for error in password_form.confirm_password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-key me-1"></i> Modifier le mot de passe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Backup & Restore Card -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                <h5 class="fw-bold mb-1"><i class="bi bi-database text-warning me-2"></i>Base de Données &amp; Sauvegarde</h5>
+                <p class="text-muted small mb-0">Téléchargez une sauvegarde ou restaurez vos données SQLite.</p>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <!-- Backup Section -->
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 bg-body-tertiary rounded-3 border h-100">
+                            <h6 class="fw-bold mb-2"><i class="bi bi-download text-success me-2"></i>Sauvegarder la base de données</h6>
+                            <p class="small text-muted mb-3">Téléchargez un fichier de sauvegarde <code>.db</code> complet contenant l'ensemble de vos transactions et paramètres.</p>
+                            <a href="{{ url_for('backup_db') }}" class="btn btn-outline-success rounded-pill px-4">
+                                <i class="bi bi-download me-1"></i> Télécharger la sauvegarde (.db)
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Restore Section -->
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 bg-danger-subtle rounded-3 border border-danger-subtle h-100">
+                            <h6 class="fw-bold text-danger mb-2"><i class="bi bi-upload me-2"></i>Restaurer la base de données</h6>
+                            <p class="small text-muted mb-3">Sélectionnez un fichier <code>.db</code> précédemment sauvegardé. <strong class="text-danger">Attention : Cette action écrasera les données actuelles.</strong></p>
+                            
+                            <form method="POST" action="{{ url_for('restore_db') }}" enctype="multipart/form-data" novalidate>
+                                {{ restore_form.hidden_tag() }}
+                                <div class="mb-3">
+                                    {{ restore_form.db_file(class="form-control form-control-sm") }}
+                                </div>
+                                <button type="submit" class="btn btn-danger rounded-pill px-4" onclick="return confirm('Êtes-vous sûr de vouloir restaurer cette base de données ? Toutes les données actuelles seront remplacées.');">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurer la base
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

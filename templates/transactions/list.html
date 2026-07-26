@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions | {{ app_name }}{% endblock %}
+{% block header_title %}Gestion des Transactions{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1"><i class="bi bi-receipt text-primary me-2"></i>Toutes les Transactions</h4>
+        <p class="text-muted small mb-0">Recherchez, filtrez, modifiez ou exportez vos enregistrements financiers.</p>
+    </div>
+    
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <!-- Summary in PDF Toggle (Off by default) -->
+        <div class="form-check form-switch d-inline-flex align-items-center gap-2 me-2 bg-body-tertiary px-3 py-1.5 rounded-pill border">
+            <input class="form-check-input my-0" type="checkbox" id="includeSummaryPdfToggle">
+            <label class="form-check-label small fw-medium text-muted" for="includeSummaryPdfToggle" style="cursor: pointer;">
+                <i class="bi bi-card-checklist me-1 text-primary"></i>Résumé dans PDF
+            </label>
+        </div>
+
+        <a href="{{ url_for('transactions_export_excel', **request.args) }}" class="btn btn-outline-success rounded-pill px-3 d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-file-earmark-excel"></i> Excel
+        </a>
+        <a id="exportPdfBtn" href="{{ url_for('transactions_export_pdf', include_summary=0, **request.args) }}" class="btn btn-danger rounded-pill px-3 d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-file-earmark-pdf"></i> Export PDF
+        </a>
+
+        <a href="{{ url_for('transaction_add') }}" class="btn btn-primary rounded-pill px-4 d-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-plus-lg"></i>
+            <span>Ajouter une transaction</span>
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filters Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <form method="GET" action="{{ url_for('transactions_list') }}" class="row g-2 align-items-center">
+            <!-- Keyword Search -->
+            <div class="col-12 col-md-5 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-body-tertiary border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0" placeholder="Rechercher mot-clé..." value="{{ request.args.get('search', '') }}">
+                </div>
+            </div>
+
+            <!-- Month Filter -->
+            <div class="col-6 col-md-3 col-lg-3">
+                <select name="month" class="form-select form-select-sm">
+                    <option value="">Tous les mois</option>
+                    {% for m_num, m_name in french_months.items() %}
+                        <option value="{{ m_num }}" {% if request.args.get('month')|int == m_num %}selected{% endif %}>{{ m_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Year Filter -->
+            <div class="col-6 col-md-2 col-lg-2">
+                <select name="year" class="form-select form-select-sm">
+                    <option value="">Toutes les années</option>
+                    {% for y in years %}
+                        <option value="{{ y }}" {% if request.args.get('year')|int == y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Sort Filter -->
+            <div class="col-8 col-md-2 col-lg-2">
+                <select name="sort" class="form-select form-select-sm">
+                    <option value="date_desc" {% if request.args.get('sort') == 'date_desc' %}selected{% endif %}>Date (Récent &rarr; Ancien)</option>
+                    <option value="date_asc" {% if request.args.get('sort') == 'date_asc' %}selected{% endif %}>Date (Ancien &rarr; Récent)</option>
+                    <option value="amount_desc" {% if request.args.get('sort') == 'amount_desc' %}selected{% endif %}>Montant (Élevé &rarr; Bas)</option>
+                    <option value="amount_asc" {% if request.args.get('sort') == 'amount_asc' %}selected{% endif %}>Montant (Bas &rarr; Élevé)</option>
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-4 col-md-2 col-lg-1 d-flex gap-1 justify-content-end">
+                <button type="submit" class="btn btn-primary btn-sm rounded-3 w-100" title="Filtrer">
+                    <i class="bi bi-filter"></i>
+                </button>
+                <a href="{{ url_for('transactions_list') }}" class="btn btn-outline-secondary btn-sm rounded-3" title="Réinitialiser">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Transactions Table Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="table-responsive">
+        <table class="table custom-table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th class="text-end">Revenu ({{ currency }})</th>
+                    <th class="text-end">Dépense ({{ currency }})</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if transactions %}
+                    {% for tx in transactions %}
+                    <tr>
+                        <td>
+                            <span class="fw-medium text-body">{{ tx.date.strftime('%d/%m/%Y') }}</span>
+                        </td>
+                        <td>
+                            <span>{{ tx.description or '-' }}</span>
+                        </td>
+                        <td class="text-end">
+                            {% if tx.revenu > 0 %}
+                                <span class="badge badge-revenue">+{{ "%.2f"|format(tx.revenu) }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if tx.depense > 0 %}
+                                <span class="badge badge-expense">-{{ "%.2f"|format(tx.depense) }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('transaction_edit', id=tx.id) }}" class="btn btn-light text-primary" title="Modifier">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <button type="button" class="btn btn-light text-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-delete-url="{{ url_for('transaction_delete', id=tx.id) }}" data-tx-desc="{{ tx.description or 'Transaction sans description' }}" data-tx-amount="{{ tx.revenu if tx.revenu > 0 else tx.depense }} {{ currency }}" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-1 d-block mb-2 text-secondary"></i>
+                            <h5>Aucune transaction trouvée</h5>
+                            <p class="small mb-3">Essayez de modifier vos critères de recherche ou ajoutez de nouvelles transactions.</p>
+                            <a href="{{ url_for('transaction_add') }}" class="btn btn-primary btn-sm rounded-pill px-4">
+                                <i class="bi bi-plus-lg me-1"></i> Ajouter une transaction
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    {% if pagination and pagination.pages > 1 %}
+    <div class="card-footer bg-transparent border-0 py-3 d-flex align-items-center justify-content-between">
+        <small class="text-muted">Affichage de {{ pagination.items|length }} sur {{ pagination.total }} transactions</small>
+        
+        <nav aria-label="Pagination des transactions">
+            <ul class="pagination pagination-sm mb-0">
+                <!-- Previous Page -->
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-item-link page-link rounded-circle me-1" href="{{ url_for('transactions_list', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link rounded-circle mx-1" href="{{ url_for('transactions_list', page=p, **request.args) }}">{{ p }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link rounded-circle mx-1">&hellip;</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Next Page -->
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link rounded-circle ms-1" href="{{ url_for('transactions_list', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="mb-2">Êtes-vous sûr de vouloir supprimer définitivement cette transaction ?</p>
+                <div class="card bg-body-tertiary border p-3 rounded-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Description:</span>
+                        <strong id="deleteTxDesc">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Montant:</span>
+                        <strong id="deleteTxAmount" class="text-danger">-</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('includeSummaryPdfToggle');
+    const pdfBtn = document.getElementById('exportPdfBtn');
+
+    if (toggle && pdfBtn) {
+        const updatePdfUrl = () => {
+            const rawUrl = pdfBtn.getAttribute('href');
+            const urlObj = new URL(rawUrl, window.location.origin);
+            urlObj.searchParams.set('include_summary', toggle.checked ? '1' : '0');
+            pdfBtn.href = urlObj.pathname + urlObj.search;
+        };
+
+        toggle.addEventListener('change', updatePdfUrl);
+        updatePdfUrl();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} | {{ app_name }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="fw-bold mb-1">{{ title }}</h4>
+                        <p class="text-muted small mb-0">Remplissez les informations ci-dessous pour enregistrer le mouvement financier.</p>
+                    </div>
+                    <span id="netPreview" data-currency="{{ currency }}" class="badge bg-secondary-subtle text-secondary border border-secondary fs-6">
+                        +0.00 {{ currency }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <!-- General Error Alert -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger rounded-3 d-flex align-items-center gap-2 mb-3" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            <div>Veuillez corriger les erreurs ci-dessous avant d'enregistrer.</div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Date Field -->
+                    <div class="mb-3">
+                        <label for="date" class="form-label fw-semibold">
+                            Date <span class="text-danger">*</span>
+                        </label>
+                        {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date") }}
+                        {% for error in form.date.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Description Field -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-semibold">
+                            Description <span class="text-muted fw-normal">(Optionnel)</span>
+                        </label>
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="3", placeholder="Ex: Achats de fournitures, salaire...") }}
+                        {% for error in form.description.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Financial Amounts Row -->
+                    <div class="row g-3 mb-4">
+                        <!-- Revenu (DH) -->
+                        <div class="col-12 col-sm-6">
+                            <label for="revenu" class="form-label fw-semibold text-success">
+                                <i class="bi bi-arrow-down-left-circle me-1"></i>Revenu ({{ currency }})
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-success-subtle text-success border-success">+</span>
+                                {{ form.revenu(class="form-control" + (" is-invalid" if form.revenu.errors else ""), type="number", step="0.01", min="0") }}
+                            </div>
+                            {% for error in form.revenu.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Entrez un montant si c'est une entrée d'argent.</div>
+                        </div>
+
+                        <!-- Dépense (DH) -->
+                        <div class="col-12 col-sm-6">
+                            <label for="depense" class="form-label fw-semibold text-danger">
+                                <i class="bi bi-arrow-up-right-circle me-1"></i>Dépense ({{ currency }})
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-danger-subtle text-danger border-danger">-</span>
+                                {{ form.depense(class="form-control" + (" is-invalid" if form.depense.errors else ""), type="number", step="0.01", min="0") }}
+                            </div>
+                            {% for error in form.depense.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Entrez un montant si c'est une sortie d'argent.</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex align-items-center justify-content-end gap-2 pt-2 border-top">
+                        <a href="{{ url_for('transactions_list') }}" class="btn btn-light rounded-pill px-4">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-check-lg me-1"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
