@@ -114,7 +114,9 @@ function initDeleteModal() {
     const deleteModal = document.getElementById('deleteConfirmModal');
     if (deleteModal) {
         deleteModal.addEventListener('show.bs.modal', (event) => {
-            const button = event.relatedTarget;
+            const button = event.relatedTarget ? (event.relatedTarget.closest('[data-delete-url]') || event.relatedTarget) : null;
+            if (!button) return;
+
             const deleteUrl = button.getAttribute('data-delete-url');
             const description = button.getAttribute('data-tx-desc');
             const amount = button.getAttribute('data-tx-amount');
@@ -123,9 +125,28 @@ function initDeleteModal() {
             const descEl = deleteModal.querySelector('#deleteTxDesc');
             const amountEl = deleteModal.querySelector('#deleteTxAmount');
 
-            if (form) form.action = deleteUrl;
+            if (form && deleteUrl) form.action = deleteUrl;
             if (descEl) descEl.textContent = description || 'Transaction sans description';
             if (amountEl) amountEl.textContent = amount || '';
         });
+
+        // Clean up modal backdrop on submit
+        const deleteForm = deleteModal.querySelector('#deleteForm');
+        if (deleteForm) {
+            deleteForm.addEventListener('submit', () => {
+                const modalInstance = bootstrap.Modal.getInstance(deleteModal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
     }
+
+    // Safety cleanup for lingering backdrops on navigation / pageshow
+    window.addEventListener('pageshow', () => {
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    });
 }
