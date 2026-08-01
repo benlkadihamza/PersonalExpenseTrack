@@ -113,14 +113,14 @@
                         </td>
                         <td class="text-end">
                             {% if tx.revenu > 0 %}
-                                <span class="badge badge-revenue">+{{ "%.2f"|format(tx.revenu) }}</span>
+                                <span class="badge badge-revenue">+{{ tx.revenu|int if tx.revenu == tx.revenu|int else ("%.2f"|format(tx.revenu)) }}</span>
                             {% else %}
                                 <span class="text-muted">-</span>
                             {% endif %}
                         </td>
                         <td class="text-end">
                             {% if tx.depense > 0 %}
-                                <span class="badge badge-expense">-{{ "%.2f"|format(tx.depense) }}</span>
+                                <span class="badge badge-expense">-{{ tx.depense|int if tx.depense == tx.depense|int else ("%.2f"|format(tx.depense)) }}</span>
                             {% else %}
                                 <span class="text-muted">-</span>
                             {% endif %}
