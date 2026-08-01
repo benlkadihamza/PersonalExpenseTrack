@@ -27,11 +27,11 @@ class ChangePasswordForm(FlaskForm):
 class TransactionForm(FlaskForm):
     date = DateField('Date', default=date.today, validators=[DataRequired(message="La date est obligatoire.")])
     description = TextAreaField('Description', validators=[Optional()])
-    revenu = DecimalField('Revenu (DH)', default=0.0, places=2, validators=[
-        NumberRange(min=0, message="Le revenu ne peut pas être négatif.")
+    revenu = DecimalField('Revenu (DH)', default=None, validators=[
+        Optional(), NumberRange(min=0, message="Le revenu ne peut pas être négatif.")
     ])
-    depense = DecimalField('Dépense (DH)', default=0.0, places=2, validators=[
-        NumberRange(min=0, message="La dépense ne peut pas être négative.")
+    depense = DecimalField('Dépense (DH)', default=None, validators=[
+        Optional(), NumberRange(min=0, message="La dépense ne peut pas être négative.")
     ])
     submit = SubmitField('Enregistrer')
 
