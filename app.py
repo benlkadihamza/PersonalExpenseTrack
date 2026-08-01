@@ -492,6 +492,18 @@ def create_app():
                     flash(f"Erreur de restauration: {error}", "danger")
             return redirect(url_for('settings'))
 
+    # PWA & iOS Safari Manifest & Service Worker Routes
+    @app.route('/manifest.json')
+    def manifest():
+        return app.send_static_file('manifest.json')
+
+    @app.route('/sw.js')
+    def service_worker():
+        response = make_response(app.send_static_file('sw.js'))
+        response.headers['Content-Type'] = 'application/javascript'
+        response.headers['Service-Worker-Allowed'] = '/'
+        return response
+
     return app
 
 app = create_app()
