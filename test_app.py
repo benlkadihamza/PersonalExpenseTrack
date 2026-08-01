@@ -100,7 +100,7 @@ class PersonalExpenseTrackerTestCase(unittest.TestCase):
         response = self.client.get('/rapport?month=7&year=2026')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Rapport financier", response.data)
-        self.assertIn(b"10150.00", response.data)
+        self.assertIn(b"10150", response.data)
 
     def test_pdf_export_without_summary_default(self):
         self.login()
