@@ -12,7 +12,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted fw-semibold small text-uppercase">Total Revenus</span>
-                    <h3 class="fw-bold text-success mb-0 mt-1">+{{ "%.2f"|format(tot_rev) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
+                    <h3 class="fw-bold text-success mb-0 mt-1">+{{ tot_rev|int if tot_rev == tot_rev|int else ("%.2f"|format(tot_rev)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
                 </div>
                 <div class="stat-icon bg-revenue-icon">
                     <i class="bi bi-arrow-down-left-circle-fill"></i>
@@ -27,7 +27,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted fw-semibold small text-uppercase">Total Dépenses</span>
-                    <h3 class="fw-bold text-danger mb-0 mt-1">-{{ "%.2f"|format(tot_dep) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
+                    <h3 class="fw-bold text-danger mb-0 mt-1">-{{ tot_dep|int if tot_dep == tot_dep|int else ("%.2f"|format(tot_dep)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
                 </div>
                 <div class="stat-icon bg-expense-icon">
                     <i class="bi bi-arrow-up-right-circle-fill"></i>
@@ -43,7 +43,7 @@
                 <div>
                     <span class="text-muted fw-semibold small text-uppercase">Solde Actuel</span>
                     <h3 class="fw-bold {{ 'text-success' if solde >= 0 else 'text-danger' }} mb-0 mt-1">
-                        {{ "+" if solde > 0 else "" }}{{ "%.2f"|format(solde) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span>
+                        {{ "+" if solde > 0 else "" }}{{ solde|int if solde == solde|int else ("%.2f"|format(solde)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span>
                     </h3>
                 </div>
                 <div class="stat-icon bg-balance-icon">
@@ -129,14 +129,14 @@
                         <td>{{ tx.description or '-' }}</td>
                         <td class="text-end">
                             {% if tx.revenu > 0 %}
-                                <span class="badge badge-revenue">+{{ "%.2f"|format(tx.revenu) }}</span>
+                                <span class="badge badge-revenue">+{{ tx.revenu|int if tx.revenu == tx.revenu|int else ("%.2f"|format(tx.revenu)) }}</span>
                             {% else %}
                                 <span class="text-muted">-</span>
                             {% endif %}
                         </td>
                         <td class="text-end">
                             {% if tx.depense > 0 %}
-                                <span class="badge badge-expense">-{{ "%.2f"|format(tx.depense) }}</span>
+                                <span class="badge badge-expense">-{{ tx.depense|int if tx.depense == tx.depense|int else ("%.2f"|format(tx.depense)) }}</span>
                             {% else %}
                                 <span class="text-muted">-</span>
                             {% endif %}
