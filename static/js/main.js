@@ -17,7 +17,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Delete Confirmation Modal Helper
     initDeleteModal();
+
+    // 6. Service Worker Registration for PWA
+    registerServiceWorker();
+
+    // 7. iOS Safari Install Prompt Handler
+    initIosInstallPrompt();
 });
+
+/**
+ * Registers PWA Service Worker for offline support & installability
+ */
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                })
+                .catch((error) => {
+                    console.warn('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+}
+
+/**
+ * Detects iOS Safari and handles PWA installation prompt / button display
+ */
+function initIosInstallPrompt() {
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+    const iosInstallBtn = document.getElementById('iosInstallBtn');
+    const iosInstallBanner = document.getElementById('iosInstallBanner');
+    const closeIosBannerBtn = document.getElementById('closeIosBannerBtn');
+
+    // Show iOS install button in header if running on iOS outside standalone mode
+    if (isIos && !isStandalone) {
+        if (iosInstallBtn) {
+            iosInstallBtn.classList.remove('d-none');
+            iosInstallBtn.classList.add('d-inline-flex');
+        }
+
+        // Show floating bottom banner if not previously dismissed in this session
+        const bannerDismissed = sessionStorage.getItem('iosBannerDismissed');
+        if (iosInstallBanner && !bannerDismissed) {
+            // Small delay for smooth pop-in appearance
+            setTimeout(() => {
+                iosInstallBanner.classList.remove('d-none');
+                iosInstallBanner.classList.add('fade-in');
+            }, 1200);
+        }
+    }
+
+    if (closeIosBannerBtn && iosInstallBanner) {
+        closeIosBannerBtn.addEventListener('click', () => {
+            iosInstallBanner.classList.add('d-none');
+            sessionStorage.setItem('iosBannerDismissed', 'true');
+        });
+    }
+}
 
 /**
  * Handles Dark / Light mode switching and saves preference in localStorage
