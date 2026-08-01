@@ -4,6 +4,23 @@
 {% block header_title %}Tableau de Bord Financier{% endblock %}
 
 {% block content %}
+<!-- Welcome Header Banner with Logo -->
+<div class="card border-0 bg-primary bg-gradient text-white rounded-4 p-3 p-md-4 mb-4 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="{{ app_name }}" class="rounded-3 shadow p-1 bg-white" style="width: 50px; height: 50px; object-fit: contain;">
+            <div>
+                <h4 class="fw-bold mb-1">Bienvenue sur {{ app_name }}</h4>
+                <p class="mb-0 text-white-50 small">Aperçu global de vos finances, revenus et dépenses.</p>
+            </div>
+        </div>
+        <a href="{{ url_for('transaction_add') }}" class="btn btn-light rounded-pill px-4 py-2 fw-semibold text-primary shadow-sm d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Nouvelle Transaction</span>
+        </a>
+    </div>
+</div>
+
 <!-- Statistics Cards Row -->
 <div class="row g-3 mb-4">
     <!-- Total Revenus -->
