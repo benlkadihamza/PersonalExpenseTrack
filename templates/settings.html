@@ -17,6 +17,15 @@
                 <form method="POST" action="{{ url_for('settings') }}" novalidate>
                     {{ settings_form.hidden_tag() }}
 
+                    <!-- Logo Preview -->
+                    <div class="d-flex align-items-center gap-3 p-3 bg-body-tertiary rounded-3 border mb-4">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="{{ app_name }}" class="rounded-3 shadow-sm p-1 border bg-white" style="width: 54px; height: 54px; object-fit: contain;">
+                        <div>
+                            <h6 class="fw-bold mb-0">Logo de l'application</h6>
+                            <small class="text-muted">Utilisé pour l'icône iOS/PWA, les rapports PDF &amp; exports Excel</small>
+                        </div>
+                    </div>
+
                     <!-- Application Name -->
                     <div class="mb-3">
                         <label for="app_name" class="form-label fw-semibold">Nom de l'application</label>
