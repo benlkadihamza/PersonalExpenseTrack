@@ -60,11 +60,30 @@ class NumberedCanvas:
         return PageNumCanvas(*args, **kwargs)
 
 def generate_excel_export(transactions, title="Export_Transactions", currency="DH", is_monthly_report=False):
-    """Generate Excel binary buffer with bold headers, auto column width, and styled formatting."""
+    """Generate Excel binary buffer with bold headers, auto column width, logo header, and styled formatting."""
     wb = Workbook()
     ws = wb.active
     ws.title = "Transactions"
     ws.views.sheetView[0].showGridLines = True
+
+    # Insert Logo Image if available
+    logo_path = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo.png')
+    if os.path.exists(logo_path):
+        try:
+            from openpyxl.drawing.image import Image as OpenPyxlImage
+            xl_img = OpenPyxlImage(logo_path)
+            xl_img.width = 42
+            xl_img.height = 42
+            ws.add_image(xl_img, "A1")
+        except Exception:
+            pass
+
+    ws.row_dimensions[1].height = 35
+    ws["B1"] = "Personal Expense Tracker"
+    ws["B1"].font = Font(name="Calibri", size=14, bold=True, color="0D6EFD")
+    ws["B1"].alignment = Alignment(vertical="center")
+
+    ws.append([]) # Row 2 blank
 
     header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="0D6EFD", end_color="0D6EFD", fill_type="solid")
@@ -78,9 +97,10 @@ def generate_excel_export(transactions, title="Export_Transactions", currency="D
     else:
         headers = ["Date", "Description", f"Revenu ({currency})", f"Dépense ({currency})"]
 
-    ws.append(headers)
+    ws.append(headers) # Row 3 Headers
 
-    for cell in ws[1]:
+    header_row_idx = 3
+    for cell in ws[header_row_idx]:
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center", vertical="center")
@@ -104,7 +124,7 @@ def generate_excel_export(transactions, title="Export_Transactions", currency="D
         ws.append(row_data)
 
     # Style data rows
-    for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(headers)):
+    for row in ws.iter_rows(min_row=header_row_idx + 1, max_row=ws.max_row, min_col=1, max_col=len(headers)):
         for idx, cell in enumerate(row):
             cell.border = cell_border
             if idx in (2, 3, 4) if is_monthly_report else (2, 3):
@@ -153,7 +173,7 @@ def generate_excel_export(transactions, title="Export_Transactions", currency="D
     return output
 
 def generate_pdf_report(transactions, month_str, year_str, app_name="Mon Suivi Financier", currency="DH", logo_path=None, include_summary=False):
-    """Generate a clean, professional PDF report using ReportLab.
+    """Generate a clean, professional PDF report using ReportLab with static/img/logo.png header.
        include_summary (bool): Controls whether the summary cards block is rendered in PDF. Default is False.
     """
     buffer = io.BytesIO()
@@ -172,8 +192,8 @@ def generate_pdf_report(transactions, month_str, year_str, app_name="Mon Suivi F
         'DocTitle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=24,
+        fontSize=18,
+        leading=22,
         textColor=colors.HexColor('#0D6EFD')
     )
     
@@ -181,8 +201,8 @@ def generate_pdf_report(transactions, month_str, year_str, app_name="Mon Suivi F
         'DocSubTitle',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=11,
-        leading=14,
+        fontSize=10,
+        leading=13,
         textColor=colors.HexColor('#6C757D')
     )
 
@@ -221,17 +241,30 @@ def generate_pdf_report(transactions, month_str, year_str, app_name="Mon Suivi F
 
     story = []
 
-    # Header block
-    header_data = [
-        [
-            Paragraph(f"<b>{app_name}</b>", title_style),
-            Paragraph(f"<b>Rapport Financier Mensuel</b><br/>Période: {month_str} {year_str}", subtitle_style)
+    # Header block with logo.png
+    resolved_logo_path = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo.png')
+    if os.path.exists(resolved_logo_path):
+        logo_cell = Image(resolved_logo_path, width=1.5*cm, height=1.5*cm)
+        header_data = [
+            [
+                logo_cell,
+                Paragraph(f"<b>{app_name}</b>", title_style),
+                Paragraph(f"<b>Rapport Financier Mensuel</b><br/>Période: {month_str} {year_str}", subtitle_style)
+            ]
         ]
-    ]
-    header_table = Table(header_data, colWidths=[280, 207])
+        header_table = Table(header_data, colWidths=[50, 230, 207])
+    else:
+        header_data = [
+            [
+                Paragraph(f"<b>{app_name}</b>", title_style),
+                Paragraph(f"<b>Rapport Financier Mensuel</b><br/>Période: {month_str} {year_str}", subtitle_style)
+            ]
+        ]
+        header_table = Table(header_data, colWidths=[280, 207])
+
     header_table.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('ALIGN', (1,0), (1,0), 'RIGHT'),
+        ('ALIGN', (-1,0), (-1,0), 'RIGHT'),
     ]))
     story.append(header_table)
     story.append(Spacer(1, 15))
