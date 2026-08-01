@@ -90,8 +90,8 @@ function initLiveCalculation() {
             const dep = parseFloat(depenseInput.value) || 0;
             const net = rev - dep;
             const currency = netPreview.getAttribute('data-currency') || 'DH';
-            
-            netPreview.textContent = `${net >= 0 ? '+' : ''}${net.toFixed(2)} ${currency}`;
+            const formattedNet = Number.isInteger(net) ? net.toString() : net.toFixed(2);
+            netPreview.textContent = `${net >= 0 ? '+' : ''}${formattedNet} ${currency}`;
             if (net > 0) {
                 netPreview.className = 'badge bg-success-subtle text-success border border-success fs-6';
             } else if (net < 0) {
