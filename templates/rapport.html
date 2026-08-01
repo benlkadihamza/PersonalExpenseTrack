@@ -69,7 +69,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted fw-semibold small text-uppercase" style="letter-spacing: 0.05em;">Total Revenus</span>
-                    <h3 class="fw-bold text-success mb-0 mt-1">+{{ "%.2f"|format(tot_rev) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
+                    <h3 class="fw-bold text-success mb-0 mt-1">+{{ tot_rev|int if tot_rev == tot_rev|int else ("%.2f"|format(tot_rev)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
                 </div>
                 <div class="stat-icon bg-success text-white shadow-sm" style="width: 48px; height: 48px; border-radius: 0.75rem;">
                     <i class="bi bi-arrow-down-left-circle-fill fs-4"></i>
@@ -84,7 +84,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted fw-semibold small text-uppercase" style="letter-spacing: 0.05em;">Total Dépenses</span>
-                    <h3 class="fw-bold text-danger mb-0 mt-1">-{{ "%.2f"|format(tot_dep) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
+                    <h3 class="fw-bold text-danger mb-0 mt-1">-{{ tot_dep|int if tot_dep == tot_dep|int else ("%.2f"|format(tot_dep)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
                 </div>
                 <div class="stat-icon bg-danger text-white shadow-sm" style="width: 48px; height: 48px; border-radius: 0.75rem;">
                     <i class="bi bi-arrow-up-right-circle-fill fs-4"></i>
@@ -100,7 +100,7 @@
                 <div>
                     <span class="text-muted fw-semibold small text-uppercase" style="letter-spacing: 0.05em;">Net du Mois</span>
                     <h3 class="fw-bold {{ 'text-success' if net_mois >= 0 else 'text-danger' }} mb-0 mt-1">
-                        {{ "+" if net_mois > 0 else "" }}{{ "%.2f"|format(net_mois) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span>
+                        {{ "+" if net_mois > 0 else "" }}{{ net_mois|int if net_mois == net_mois|int else ("%.2f"|format(net_mois)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span>
                     </h3>
                 </div>
                 <div class="stat-icon {{ 'bg-success' if net_mois >= 0 else 'bg-danger' }} text-white shadow-sm" style="width: 48px; height: 48px; border-radius: 0.75rem;">
@@ -154,21 +154,21 @@
                         </td>
                         <td class="text-end">
                             {% if tx.revenu > 0 %}
-                                <span class="text-success fw-semibold">+{{ "%.2f"|format(tx.revenu) }}</span>
+                                <span class="text-success fw-semibold">+{{ tx.revenu|int if tx.revenu == tx.revenu|int else ("%.2f"|format(tx.revenu)) }}</span>
                             {% else %}
-                                <span class="text-muted">0.00</span>
+                                <span class="text-muted">0</span>
                             {% endif %}
                         </td>
                         <td class="text-end">
                             {% if tx.depense > 0 %}
-                                <span class="text-danger fw-semibold">-{{ "%.2f"|format(tx.depense) }}</span>
+                                <span class="text-danger fw-semibold">-{{ tx.depense|int if tx.depense == tx.depense|int else ("%.2f"|format(tx.depense)) }}</span>
                             {% else %}
-                                <span class="text-muted">0.00</span>
+                                <span class="text-muted">0</span>
                             {% endif %}
                         </td>
                         <td class="text-end">
                             <span class="fw-bold {{ 'text-success' if net > 0 else ('text-danger' if net < 0 else 'text-body') }}">
-                                {{ "+" if net > 0 else "" }}{{ "%.2f"|format(net) }}
+                                {{ "+" if net > 0 else "" }}{{ net|int if net == net|int else ("%.2f"|format(net)) }}
                             </span>
                         </td>
                     </tr>
@@ -187,10 +187,10 @@
             <tfoot class="table-light fw-bold">
                 <tr>
                     <td colspan="2">TOTAL DU MOIS ({{ count_tx }} transactions)</td>
-                    <td class="text-end text-success">+{{ "%.2f"|format(tot_rev) }}</td>
-                    <td class="text-end text-danger">-{{ "%.2f"|format(tot_dep) }}</td>
+                    <td class="text-end text-success">+{{ tot_rev|int if tot_rev == tot_rev|int else ("%.2f"|format(tot_rev)) }}</td>
+                    <td class="text-end text-danger">-{{ tot_dep|int if tot_dep == tot_dep|int else ("%.2f"|format(tot_dep)) }}</td>
                     <td class="text-end {{ 'text-success' if net_mois >= 0 else 'text-danger' }}">
-                        {{ "+" if net_mois > 0 else "" }}{{ "%.2f"|format(net_mois) }}
+                        {{ "+" if net_mois > 0 else "" }}{{ net_mois|int if net_mois == net_mois|int else ("%.2f"|format(net_mois)) }}
                     </td>
                 </tr>
             </tfoot>
