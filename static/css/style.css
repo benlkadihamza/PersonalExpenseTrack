@@ -293,3 +293,13 @@ body {
     z-index: 1060 !important;
 }
 
+/* ==========================================================================
+   iOS iPhone Safe Area & Standalone Display Tweaks
+   ========================================================================== */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .mobile-bottom-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+
