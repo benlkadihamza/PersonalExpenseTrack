@@ -109,11 +109,31 @@ def create_app():
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        # Overall Statistics
-        tot_rev = db.session.query(func.coalesce(func.sum(Transaction.revenu), 0.0)).scalar()
-        tot_dep = db.session.query(func.coalesce(func.sum(Transaction.depense), 0.0)).scalar()
+        now = datetime.now()
+        current_year = now.year
+        current_month = now.month
+
+        # Current Month Statistics
+        tot_rev = db.session.query(
+            func.coalesce(func.sum(Transaction.revenu), 0.0)
+        ).filter(
+            extract('year', Transaction.date) == current_year,
+            extract('month', Transaction.date) == current_month
+        ).scalar()
+
+        tot_dep = db.session.query(
+            func.coalesce(func.sum(Transaction.depense), 0.0)
+        ).filter(
+            extract('year', Transaction.date) == current_year,
+            extract('month', Transaction.date) == current_month
+        ).scalar()
+
         solde = tot_rev - tot_dep
-        count_tx = Transaction.query.count()
+
+        count_tx = Transaction.query.filter(
+            extract('year', Transaction.date) == current_year,
+            extract('month', Transaction.date) == current_month
+        ).count()
 
         # Last 10 Transactions
         recent_txs = Transaction.query.order_by(Transaction.date.desc(), Transaction.id.desc()).limit(10).all()
@@ -146,7 +166,8 @@ def create_app():
             recent_txs=recent_txs,
             chart_labels=chart_labels,
             chart_expenses=chart_expenses,
-            chart_revenues=chart_revenues
+            chart_revenues=chart_revenues,
+            current_month_name=FRENCH_MONTHS.get(current_month, f"Mois {current_month}")
         )
 
     # Helper function to build transaction filter query
