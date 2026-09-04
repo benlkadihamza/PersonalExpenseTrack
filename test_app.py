@@ -95,6 +95,24 @@ class PersonalExpenseTrackerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Tableau de Bord", response.data)
 
+    def test_dashboard_current_month_filtering(self):
+        with self.app.app_context():
+            today = date.today()
+            t_curr = Transaction(
+                date=today,
+                description="Revenu ce mois-ci",
+                revenu=5000.0,
+                depense=1200.0
+            )
+            db.session.add(t_curr)
+            db.session.commit()
+
+        self.login()
+        response = self.client.get('/dashboard')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"5000", response.data)
+        self.assertIn(b"1200", response.data)
+
     def test_monthly_report_route(self):
         self.login()
         response = self.client.get('/rapport?month=7&year=2026')
