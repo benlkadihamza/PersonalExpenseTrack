@@ -28,7 +28,7 @@
         <div class="card stat-card p-3">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-muted fw-semibold small text-uppercase">Total Revenus</span>
+                    <span class="text-muted fw-semibold small text-uppercase">Revenus (Ce Mois)</span>
                     <h3 class="fw-bold text-success mb-0 mt-1">+{{ tot_rev|int if tot_rev == tot_rev|int else ("%.2f"|format(tot_rev)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
                 </div>
                 <div class="stat-icon bg-revenue-icon">
@@ -43,7 +43,7 @@
         <div class="card stat-card p-3">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-muted fw-semibold small text-uppercase">Total Dépenses</span>
+                    <span class="text-muted fw-semibold small text-uppercase">Dépenses (Ce Mois)</span>
                     <h3 class="fw-bold text-danger mb-0 mt-1">-{{ tot_dep|int if tot_dep == tot_dep|int else ("%.2f"|format(tot_dep)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span></h3>
                 </div>
                 <div class="stat-icon bg-expense-icon">
@@ -53,12 +53,12 @@
         </div>
     </div>
 
-    <!-- Solde Actuel -->
+    <!-- Solde du Mois -->
     <div class="col-12 col-sm-6 col-xl-3">
         <div class="card stat-card p-3">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-muted fw-semibold small text-uppercase">Solde Actuel</span>
+                    <span class="text-muted fw-semibold small text-uppercase">Solde (Ce Mois)</span>
                     <h3 class="fw-bold {{ 'text-success' if solde >= 0 else 'text-danger' }} mb-0 mt-1">
                         {{ "+" if solde > 0 else "" }}{{ solde|int if solde == solde|int else ("%.2f"|format(solde)) }} <span class="fs-6 text-muted fw-normal">{{ currency }}</span>
                     </h3>
@@ -75,7 +75,7 @@
         <div class="card stat-card p-3">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-muted fw-semibold small text-uppercase">Transactions</span>
+                    <span class="text-muted fw-semibold small text-uppercase">Transactions (Ce Mois)</span>
                     <h3 class="fw-bold text-body mb-0 mt-1">{{ count_tx }}</h3>
                 </div>
                 <div class="stat-icon bg-count-icon">
@@ -105,8 +105,8 @@
     <div class="col-12 col-lg-4">
         <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
             <div class="d-flex align-items-center justify-content-between mb-3">
-                <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill text-info me-2"></i>Répartition Globale</h6>
-                <span class="badge bg-body-tertiary text-muted border">Global</span>
+                <h6 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill text-info me-2"></i>Répartition du Mois</h6>
+                <span class="badge bg-body-tertiary text-muted border">{{ current_month_name }}</span>
             </div>
             <div class="d-flex align-items-center justify-content-center" style="position: relative; min-height: 280px;">
                 <canvas id="expensesDistributionChart"></canvas>
